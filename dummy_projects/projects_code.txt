@@ -1,0 +1,170 @@
+---------------------------------------------------------------------------------------------------------
+(((1))) control micro servo rotate from 0 degree to 180 degree and vise vera for ever
+---------------------------------------------------------------------------------------------------------
+#include<Servo.h>
+
+Servo s;
+
+void setup()
+{
+  s.attach(13);
+}
+
+void loop()
+{
+  for(int i=1;i<=180;i++){
+  	rotate(i);
+  }
+  for(int i=180;i>=1;i--){
+  	rotate(i);
+  }
+}
+
+void rotate(int angle){
+	s.write(angle);
+  	delay(10);
+}
+--------------------------------------------------------------------------------------------------------
+(((2))) led light if temp is less than 0c
+---------------------------------------------------------------------------------------------------------
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(4,1);
+}
+
+void loop()
+{
+  int r = analogRead(A5);
+  float temp = (r*(5/1023.0)-0.5)*100;
+  Serial.println(temp);
+  if(temp<0){
+  	digitalWrite(4,1);
+  }else{
+    digitalWrite(4,0);
+  }
+  delay(1000);
+}
+---------------------------------------------------------------------------------------------------------
+(((3))) led light as long as button is pressed
+---------------------------------------------------------------------------------------------------------
+void setup()
+{
+  pinMode(11, INPUT);
+  pinMode(8, OUTPUT);
+   
+}
+
+void loop()
+{
+  if(digitalRead(11)){
+    digitalWrite(8,1);
+  }else{
+  	digitalWrite(8,0);
+  }
+  delay(1000);
+}
+---------------------------------------------------------------------------------------------------------
+(((4))) light on and off leds using IR remote
+---------------------------------------------------------------------------------------------------------
+#include<IRremote.h>
+
+IRrecv remote(11); //better to use 11 (old bug in the library)
+
+decode_results out;
+
+bool isLedOn = false;
+
+void setup()
+{
+  	Serial.begin(9600);
+	remote.enableIRIn();
+	pinMode(8,OUTPUT);
+}
+
+void loop()
+{
+  if(remote.decode(&out)){
+    if(out.value == 16580863){
+    	Serial.println("ON/OFF IS PRESSED");
+      	isLedOn = !isLedOn;
+    }
+    remote.resume();
+  }
+  if(isLedOn){
+  	digitalWrite(8,1);	
+  }else{
+  	digitalWrite(8,0);
+  }
+}
+---------------------------------------------------------------------------------------------------------
+(((5))) led light for ever when button is pressed using interrupt method
+---------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------
+// you can only use two pins for interrupt 2,3
+// interrupt function can't have parameter or call delay function inside and must be void function
+//-----------------------------------------------------------
+void setup()
+{
+  pinMode(2, INPUT);
+  pinMode(8, OUTPUT);
+  Serial.begin(9600);
+  
+}
+
+void loop()
+{
+  // light for ever when you press button
+  // from low to high
+  // attachInterrupt(digitalPinToInterrupt(2),call_back1,RISING);
+  
+  // light for ever after you press button
+  // from high to low
+  // attachInterrupt(digitalPinToInterrupt(2),call_back1,FALLING);
+  
+  // light as long as you are pressing the button
+  // from (high to low) or (low to high)
+  attachInterrupt(digitalPinToInterrupt(2),call_back2,CHANGE);
+}
+
+
+void call_back1(){
+	digitalWrite(8,1);
+}
+
+void call_back2(){
+	digitalWrite(8,!digitalRead(8));
+}
+---------------------------------------------------------------------------------------------------------
+(((6))) led light if objec is at distance less than or equal to 180cm using ultrasonic
+---------------------------------------------------------------------------------------------------------
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(2, INPUT);
+  pinMode(5, OUTPUT);
+  pinMode(13,OUTPUT);
+}
+
+void loop()
+{
+ //---TRIG---
+ digitalWrite(5,0); // clear
+ digitalWrite(5,1); // detect object
+ delay(1);
+ digitalWrite(5,0); // clear
+ //---ECHO---
+ int time = pulseIn(2,1);
+ int distance = (time/2)*0.0343;
+ if(distance < 180){
+ 	digitalWrite(13,1); 
+ }else{
+   digitalWrite(13,0);
+ }
+}
+---------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------
+
+
+
+
